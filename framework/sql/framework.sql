@@ -2,6 +2,20 @@
 -- Base de données MySQL/MariaDB
 
 -- ================================================
+-- Création de la base de données
+-- ================================================
+-- IMPORTANT: Créez la base de données "framework" avant d'importer ce fichier
+-- Ou décommentez les lignes suivantes pour créer automatiquement la base:
+
+-- CREATE DATABASE IF NOT EXISTS `framework` 
+--     DEFAULT CHARACTER SET utf8mb4 
+--     COLLATE utf8mb4_unicode_ci;
+-- USE `framework`;
+
+-- Note: Si vous utilisez un autre nom de base de données, 
+-- modifiez Config.Database.Name dans shared/config.lua
+
+-- ================================================
 -- Table des joueurs
 -- ================================================
 CREATE TABLE IF NOT EXISTS `ama_players` (
