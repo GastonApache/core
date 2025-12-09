@@ -8,26 +8,26 @@ version '1.0.0'
 lua54 'yes'
 
 shared_scripts {
+    'shared/config.lua',
+    'shared/discord_config.lua',
     'shared/functions.lua',
-    'shared/serialization.lua',
-    'shared/ama_run.lua',
-    'shared/ama_discord.lua'
+    'shared/serialization.lua'
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'server/ama_done.lua',
-    'server/ama_player.lua',
-    'server/ama_discord.lua',
-    'server/ama_crew.lua',
-    'server/ama_bitcoin.lua',
-    'server/command.lua'
+    'server/main.lua',
+    'server/player.lua',
+    'server/discord_logger.lua',
+    'server/crews.lua',
+    'server/bitcoin.lua',
+    'server/commands.lua'
 }
 
 client_scripts {
-    'client/ama_add.lua',
-    'client/spwan.lua',
-    'client/event.lua'
+    'client/main.lua',
+    'client/spawn.lua',
+    'client/events.lua'
 }
 
 dependencies {
