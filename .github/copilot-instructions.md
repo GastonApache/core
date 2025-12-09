@@ -44,28 +44,38 @@ framework/
 
 ## Configuration Guidelines
 
-### Critical: Script Loading Order
+### Configuration Structure
 
-**IMPORTANT**: In `fxmanifest.lua`, `Config.lua` MUST be loaded BEFORE `functions.lua` in `shared_scripts`.
+The Config object is defined directly in shared files rather than in a separate config file:
 
+- **Discord configuration**: Defined in `shared/ama_discord.lua` as `Config.Discord`
+- **Serialization configuration**: Defined in `shared/ama_run.lua` as `Config.Serialization`
+- **Logging configuration**: `Config.Logs` is referenced in `functions.lua`
+
+**Note**: The framework expects `Config` to be a global table that is populated by the shared scripts before `functions.lua` is loaded.
+
+### Script Loading Order in fxmanifest.lua
+
+Current loading order in `shared_scripts`:
 ```lua
 shared_scripts {
-    'shared/config.lua',      -- Must be first!
-    'shared/functions.lua',   -- Depends on Config
-    -- ... other scripts
+    'shared/functions.lua',      -- Defines AMA global and logging
+    'shared/serialization.lua',  -- Legacy serialization (not actively used)
+    'shared/ama_run.lua',        -- Module/hook system + Config.Serialization
+    'shared/ama_discord.lua'     -- Discord webhooks + Config.Discord
 }
 ```
 
-**Reason**: `functions.lua` references `Config.Logs.EnableConsole` and other Config values. Loading Config first prevents "attempt to index a nil value" errors.
+**Important**: If adding a dedicated `shared/config.lua` file, it MUST be loaded FIRST before `functions.lua` since `functions.lua` references `Config.Logs.EnableConsole`.
 
 ### Database Configuration
 
-1. **Database name**: Default is `'framework'` (see `Config.Database.Name` in `shared/config.lua`)
-2. **SQL file location**: `framework/sql/framework.sql`
-3. **Important**: Database must be created before server starts
-4. **Database library**: Uses `oxmysql` (not the old LDC resource)
+1. **SQL file location**: `framework/sql/framework.sql`
+2. **Important**: Database must be created before server starts
+3. **Database library**: Uses `oxmysql` (not the old LDC resource)
    - Add `@oxmysql/lib/MySQL.lua` to server_scripts
    - Add `oxmysql` to dependencies
+4. **Table naming**: All tables use `ama_` prefix
 
 ## Coding Standards
 
@@ -135,6 +145,8 @@ shared_scripts {
 
 ### Creating Modules
 
+The module system is defined in `shared/ama_run.lua`. To create a module:
+
 1. Place modules in `framework/modules/`
 2. Use the module registration system:
    ```lua
@@ -150,16 +162,19 @@ shared_scripts {
 3. Load modules in `fxmanifest.lua`:
    ```lua
    shared_scripts {
-       'shared/config.lua',
        'shared/functions.lua',
-       'shared/serialization.lua',  -- Required for modules
-       'modules/*.lua'
+       'shared/serialization.lua',
+       'shared/ama_run.lua',        -- Required for module system
+       'shared/ama_discord.lua',
+       'modules/*.lua'               -- Load all modules
    }
    ```
 
+**Note**: The serialization system provides hooks, modules, metadata, and utility functions for extending the framework without modifying core files.
+
 ### Using Hooks
 
-The framework provides a hook system for extensibility:
+The framework provides a hook system for extensibility (defined in `shared/ama_run.lua`):
 
 ```lua
 -- Register a hook
@@ -171,7 +186,7 @@ end, priority)
 AMA.TriggerHook("hookName", arg1, arg2)
 ```
 
-Common hooks:
+Common hooks (see `shared/ama_run.lua` for complete list):
 - `ama:hook:playerLoaded` - When player data loads
 - `ama:hook:playerSpawned` - When player spawns
 - `ama:hook:moneyChanged` - When player money changes
@@ -179,17 +194,30 @@ Common hooks:
 
 ## Testing and Debugging
 
-1. **Debug mode**: Enable in `shared/config.lua`
+1. **Debug mode**: The framework supports debug mode that can be enabled for different systems:
    ```lua
+   -- In the file where Config properties are defined
    Config.Framework = {
        Debug = true
    }
+   
+   Config.Serialization = {
+       Debug = true  -- Defined in ama_run.lua
+   }
    ```
 
-2. **Console logging**: Enable/disable via Config
+2. **Console logging**: Control via Config (referenced in `functions.lua`):
    ```lua
-   Config.Logs.EnableConsole = true
+   Config.Logs = {
+       EnableConsole = true
+   }
    ```
+
+3. **Logging levels**:
+   - DEBUG: Detailed information
+   - INFO: General information
+   - WARN: Warning messages
+   - ERROR: Error messages
 
 ## Best Practices
 
@@ -198,21 +226,22 @@ Common hooks:
 - Always validate player source before operations
 - Use proper error handling with pcall/xpcall
 - Follow the existing file naming conventions
-- Use the framework's logging system
+- Use the framework's logging system (`AMA.Log()`)
 - Test with oxmysql dependency loaded
-- Keep configuration in `shared/config.lua`
+- Define Config properties in appropriate shared files (follow the pattern in `ama_discord.lua` and `ama_run.lua`)
 - Use hooks instead of modifying core files
 - Maintain French comments and messages (framework is French-language)
+- Use the module system (`AMA.RegisterModule`) for extensions
 
 ### Don'ts ❌
 
 - Don't modify files in `framework/version/` directory
 - Don't use synchronous MySQL queries
-- Don't break the Config loading order
 - Don't use old MySQL libraries (e.g., LDC)
-- Don't hardcode database names (use Config)
+- Don't hardcode values that should be configurable
 - Don't remove the `ama_` prefix from existing files
 - Don't load version files in fxmanifest.lua
+- Don't modify core framework files when hooks/modules can be used instead
 
 ## Common Patterns
 
@@ -256,7 +285,7 @@ end
 
 ## Discord Integration
 
-The framework includes Discord webhook integration:
+The framework includes Discord webhook integration configured in `shared/ama_discord.lua`:
 
 ```lua
 Config.Discord = {
@@ -264,10 +293,26 @@ Config.Discord = {
     Webhooks = {
         Connection = "webhook_url",
         Disconnection = "webhook_url",
-        -- etc.
+        PlayerData = "webhook_url",
+        Transactions = "webhook_url",
+        JobChanges = "webhook_url"
+    },
+    Colors = {
+        Connection = 3066993,      -- Green
+        Disconnection = 15158332,  -- Red
+        PlayerData = 3447003,      -- Blue
+        Transaction = 15844367,    -- Gold
+        JobChange = 10181046       -- Purple
+    },
+    Settings = {
+        SendFullDataOnConnect = true,
+        SendOnlyTimeOnDisconnect = true,
+        -- ... other settings
     }
 }
 ```
+
+Modify these values in `shared/ama_discord.lua` to configure Discord logging for your server.
 
 ## Security Considerations
 
