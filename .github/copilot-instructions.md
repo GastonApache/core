@@ -60,11 +60,13 @@ Current loading order in `shared_scripts`:
 ```lua
 shared_scripts {
     'shared/functions.lua',      -- Defines AMA global and logging
-    'shared/serialization.lua',  -- Legacy serialization (not actively used)
-    'shared/ama_run.lua',        -- Module/hook system + Config.Serialization
+    'shared/serialization.lua',  -- Module/hook system (duplicate of ama_run.lua)
+    'shared/ama_run.lua',        -- Module/hook system + embedded docs
     'shared/ama_discord.lua'     -- Discord webhooks + Config.Discord
 }
 ```
+
+**Note**: Both `serialization.lua` and `ama_run.lua` contain the same module and hook system code. `ama_run.lua` additionally includes embedded markdown documentation at the end of the file.
 
 **Important**: If adding a dedicated `shared/config.lua` file, it MUST be loaded FIRST before `functions.lua` since `functions.lua` references `Config.Logs.EnableConsole`.
 
@@ -145,7 +147,7 @@ shared_scripts {
 
 ### Creating Modules
 
-The module system is defined in `shared/ama_run.lua`. To create a module:
+The module system is defined in `shared/serialization.lua` and `shared/ama_run.lua` (both files contain the same code). To create a module:
 
 1. Place modules in `framework/modules/`
 2. Use the module registration system:
@@ -170,7 +172,7 @@ The module system is defined in `shared/ama_run.lua`. To create a module:
    }
    ```
 
-**Note**: The serialization system provides hooks, modules, metadata, and utility functions for extending the framework without modifying core files.
+**Note**: The module and hook system (defined in both `serialization.lua` and `ama_run.lua`) provides these capabilities for extending the framework without modifying core files.
 
 ### Using Hooks
 
@@ -269,10 +271,12 @@ xPlayer = {
 ### Saving Player Data
 
 ```lua
--- Position is saved automatically every 30 seconds (configurable)
+-- Position is saved automatically every 5 minutes (hardcoded in ama_done.lua)
 -- Manual save:
 TriggerEvent('ama:savePlayer', source)
 ```
+
+**Note**: The save interval is currently hardcoded in the server files. Alternative configurations with configurable save delays can be found in `framework/version/` files.
 
 ### Distance Calculations
 
