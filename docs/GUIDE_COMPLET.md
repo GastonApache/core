@@ -554,7 +554,34 @@ Config.Crews = {
 
 #### Discord
 
-Pour configurer Discord en détail, consultez [la documentation Discord](../framework/readme/readme.md#-configuration-des-webhooks-discord).
+Pour activer les logs Discord, configurez les webhooks dans `shared/discord_config.lua` :
+
+```lua
+Config.Discord = {
+    Enabled = true,
+    
+    Webhooks = {
+        Connection = "https://discord.com/api/webhooks/VOTRE_ID/VOTRE_TOKEN",
+        Disconnection = "https://discord.com/api/webhooks/VOTRE_ID/VOTRE_TOKEN",
+        PlayerData = "https://discord.com/api/webhooks/VOTRE_ID/VOTRE_TOKEN",
+        Transactions = "https://discord.com/api/webhooks/VOTRE_ID/VOTRE_TOKEN",
+        JobChanges = "https://discord.com/api/webhooks/VOTRE_ID/VOTRE_TOKEN"
+    },
+    
+    Settings = {
+        SendFullDataOnConnect = true,
+        IncludePosition = true,
+        IncludeInventory = false,
+        IncludeIdentifiers = true
+    }
+}
+```
+
+Pour créer un webhook Discord :
+1. Clic droit sur un salon Discord → Modifier le salon
+2. Intégrations → Webhooks → Créer un webhook
+3. Copier l'URL du webhook
+4. Remplacer "VOTRE_ID/VOTRE_TOKEN" dans la configuration
 
 ---
 

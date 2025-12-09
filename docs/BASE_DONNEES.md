@@ -174,7 +174,7 @@ CREATE TABLE `ama_crews` (
 
 | name | label | color | bank |
 |------|-------|-------|------|
-| none | Aucun Crew | #FFFFFF | 0 |
+| none | Aucun Crew | #808080 | 0 |
 | mafia | La Mafia | #FF0000 | 50000 |
 | cartel | Le Cartel | #FF8C00 | 45000 |
 | yakuza | Yakuza | #9B59B6 | 60000 |
