@@ -21,13 +21,15 @@ server_scripts {
     'server/ama_discord.lua',
     'server/ama_crew.lua',
     'server/ama_bitcoin.lua',
-    'server/command.lua'
+    'server/command.lua',
+    'server/ama_exports.lua'
 }
 
 client_scripts {
     'client/ama_add.lua',
     'client/spwan.lua',
-    'client/event.lua'
+    'client/event.lua',
+    'client/ama_exports.lua'
 }
 
 dependencies {

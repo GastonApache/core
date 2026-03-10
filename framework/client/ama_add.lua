@@ -154,7 +154,3 @@ AddEventHandler('playerSpawned', function()
     end
 end)
 
--- Export des fonctions
-exports('GetPlayerData', AMA.GetPlayerData)
-exports('IsPlayerLoaded', AMA.IsPlayerLoaded)
-exports('ShowNotification', AMA.ShowNotification)
