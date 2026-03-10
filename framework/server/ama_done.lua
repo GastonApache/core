@@ -126,6 +126,3 @@ CreateThread(function()
     end
 end)
 
--- Export des fonctions
-exports('GetPlayer', AMA.GetPlayer)
-exports('GetPlayers', AMA.GetPlayers)
